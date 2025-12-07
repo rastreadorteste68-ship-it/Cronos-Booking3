@@ -58,7 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (name: string, email: string, pass: string, role: Role) => {
     setIsLoading(true);
     try {
-      const fbUser = await registerWithEmail(email, pass, name);
+      const fbUser = await registerWithEmail(email, pass, name, role);
+
       if (fbUser && fbUser.email) {
          // Create local profile with Name and Role
          const appUser = await StorageService.syncFirebaseUser(fbUser.email, role, name);

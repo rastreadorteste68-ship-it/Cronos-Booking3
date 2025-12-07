@@ -9,6 +9,8 @@ import {
   fetchSignInMethodsForEmail
 } from "firebase/auth";
 import { firebaseApp } from "./firebaseClient";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+const db = getFirestore(firebaseApp);
 
 const auth = getAuth(firebaseApp);
 
@@ -18,17 +20,24 @@ export async function loginWithEmail(email: string, password: string) {
   return result.user;
 }
 
-export async function registerWithEmail(email: string, password: string, name: string) {
-  // Explicit Registration
+export async function registerWithEmail(email: string, password: string, name: string, role: string) {
   const result = await createUserWithEmailAndPassword(auth, email, password);
-  
-  // Update Firebase Profile Display Name
+
   if (result.user) {
     await updateProfile(result.user, { displayName: name });
+
+    // Salvar role no Firestore
+    await setDoc(doc(db, "users", result.user.uid), {
+      name,
+      email,
+      role,              // 👈 SALVANDO O TIPO DE CONTA
+      createdAt: new Date(),
+    });
   }
-  
+
   return result.user;
 }
+
 
 export async function recoverPassword(email: string) {
   await sendPasswordResetEmail(auth, email);
