@@ -12,7 +12,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
-    { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
     { label: 'Empresas', path: '/empresas', icon: Building2, roles: ['MASTER_ADMIN'] },
     { label: 'Agenda', path: '/agenda', icon: Calendar, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN', 'CLIENTE'] },
     { label: 'Clientes', path: '/clientes', icon: Users, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },

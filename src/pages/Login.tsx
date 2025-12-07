@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../services/authContext';
 import { Button, Input, Card, Modal } from '../components/UI';
-import { Command, Eye, EyeOff } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Command, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthService } from '../lib/authService';
 
 export const Login: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const accountType = searchParams.get('type') || 'client'; // Default to client if missing
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,6 +22,15 @@ export const Login: React.FC = () => {
 
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Mapping types to UI text
+  const typeConfig: Record<string, { title: string, subtitle: string, color: string }> = {
+    client: { title: 'Login Cliente', subtitle: 'Acesse seus agendamentos', color: 'text-blue-600' },
+    company: { title: 'Login Empresa', subtitle: 'Gerencie seu negócio', color: 'text-indigo-600' },
+    admin: { title: 'Login Administrador', subtitle: 'Gestão do sistema', color: 'text-slate-800' }
+  };
+
+  const currentConfig = typeConfig[accountType] || typeConfig['client'];
 
   // Load Remembered Email
   useEffect(() => {
@@ -47,7 +59,7 @@ export const Login: React.FC = () => {
         localStorage.removeItem('cronos_remember_email');
       }
 
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
@@ -78,21 +90,24 @@ export const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        
+        {/* Top Link: Voltar */}
+        <div className="mb-6">
+          <Link to="/" className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-2">
+            <ArrowLeft size={16} /> Voltar para seleção
+          </Link>
+        </div>
+
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-indigo-600 rounded-xl mx-auto flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-200">
+          <div className="w-12 h-12 bg-white rounded-xl mx-auto flex items-center justify-center text-indigo-600 mb-4 shadow-sm border border-slate-200">
             <Command size={24} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Cronos</h1>
-          <p className="text-slate-500 mt-2">Sistema de Agendamento Inteligente</p>
+          <h1 className={`text-2xl font-bold ${currentConfig.color}`}>{currentConfig.title}</h1>
+          <p className="text-slate-500 mt-2">{currentConfig.subtitle}</p>
         </div>
 
         <Card className="shadow-xl border-0">
-            <div className="text-center mb-6">
-              <h2 className="text-lg font-semibold text-slate-800">Bem-vindo de volta</h2>
-              <p className="text-sm text-slate-500">Acesse sua conta para continuar.</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5 pt-2">
                 <Input 
                   label="Email" 
                   type="email" 
@@ -149,15 +164,20 @@ export const Login: React.FC = () => {
                     {isLoading ? 'Carregando...' : 'Entrar'}
                 </Button>
             </form>
-<div className="mt-6 pt-4 border-t border-slate-100 text-center">
-  <p className="text-sm text-slate-600 mb-3">Não tem uma conta?</p>
-  <Link to="/register">
-     <Button variant="secondary" className="w-full justify-center" type="button">
-        Inicio
-     </Button>
-  </Link>
-</div>
-</Card> 
+
+            <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+              <p className="text-sm text-slate-600 mb-3">Ainda não tem conta?</p>
+              
+              <Link 
+                to={`/register?type=${accountType}`} 
+                className="block w-full text-center bg-slate-50 border border-slate-200 rounded-lg py-2 hover:bg-slate-100 transition text-slate-700 font-medium"
+              >
+                 Criar Conta
+              </Link>
+            </div>
+        </Card>
+      </div>
+
       {/* Forgot Password Modal */}
       <Modal 
         isOpen={isResetModalOpen} 
@@ -183,3 +203,5 @@ export const Login: React.FC = () => {
         </div>
       </Modal>
     </div>
+  );
+};

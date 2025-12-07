@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './services/authContext';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { AccountTypePage } from './pages/AccountTypePage';
 import { Dashboard } from './pages/Dashboard';
 import { Agenda } from './pages/Agenda';
 import { ServicesPage } from './pages/ServicesPage';
@@ -17,7 +18,7 @@ import { SettingsPage } from './pages/SettingsPage';
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return <div className="h-screen flex items-center justify-center bg-slate-50 text-indigo-600">Carregando...</div>;
-  if (!user) return <Navigate to="/login" />;
+  if (!user) return <Navigate to="/" />; // Redirect to Account Selection if not logged in
   return <Layout>{children}</Layout>;
 };
 
@@ -26,10 +27,13 @@ const App: React.FC = () => {
     <AuthProvider>
       <HashRouter>
         <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<AccountTypePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/empresas" element={<ProtectedRoute><CompaniesPage /></ProtectedRoute>} />
           <Route path="/agenda" element={<ProtectedRoute><Agenda /></ProtectedRoute>} />
           <Route path="/servicos" element={<ProtectedRoute><ServicesPage /></ProtectedRoute>} />
