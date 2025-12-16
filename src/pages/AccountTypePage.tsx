@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User, Building2, Shield, Command } from 'lucide-react';
+import { User, Building2, Shield, Command, Scissors } from 'lucide-react';
 import { Card } from '../components/UI';
 
 export const AccountTypePage: React.FC = () => {
@@ -28,10 +28,10 @@ export const AccountTypePage: React.FC = () => {
           <Command size={32} />
         </div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">Bem-vindo ao Cronos</h1>
-        <p className="text-slate-500 text-lg">Selecione seu tipo de conta para continuar</p>
+        <p className="text-slate-500 text-lg">Selecione seu perfil para continuar</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl w-full">
         <OptionCard 
           type="client" 
           icon={User} 
@@ -40,17 +40,24 @@ export const AccountTypePage: React.FC = () => {
           color="bg-blue-500"
         />
         <OptionCard 
+          type="provider" 
+          icon={Scissors} 
+          title="Sou Profissional" 
+          desc="Prestador de serviços autônomo ou colaborador" 
+          color="bg-emerald-500"
+        />
+        <OptionCard 
           type="company" 
           icon={Building2} 
           title="Sou Empresa" 
-          desc="Quero gerenciar meu negócio, agenda e equipe" 
+          desc="Gestão completa de negócio, agenda e equipe" 
           color="bg-indigo-500"
         />
         <OptionCard 
           type="admin" 
           icon={Shield} 
           title="Master Admin" 
-          desc="Acesso administrativo e gestão global" 
+          desc="Acesso administrativo e gestão global do SaaS" 
           color="bg-slate-800"
         />
       </div>

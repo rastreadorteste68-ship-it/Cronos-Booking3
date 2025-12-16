@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../services/authContext';
 import { Button, Input, Card } from '../components/UI';
-import { Command, ArrowLeft, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Command, ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { Role } from '../types';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthService } from '../lib/authService';
+import { checkPasswordRole } from '../utils/validators';
 
 export const Register: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -17,19 +18,20 @@ export const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  
-  // Existing Email Logic
   const [emailExists, setEmailExists] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const { register, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Map URL type to Role and Config
   useEffect(() => {
     switch(accountType) {
       case 'company':
         setRole('EMPRESA_ADMIN');
+        break;
+      case 'provider':
+        setRole('PROFESSIONAL');
         break;
       case 'admin':
         setRole('MASTER_ADMIN');
@@ -39,9 +41,20 @@ export const Register: React.FC = () => {
     }
   }, [accountType]);
 
+  const getRedirectPath = (r: Role) => {
+      switch (r) {
+          case 'MASTER_ADMIN': return '/admin';
+          case 'EMPRESA_ADMIN': return '/empresa';
+          case 'PROFESSIONAL': return '/profissional';
+          case 'CLIENTE': return '/cliente';
+          default: return '/dashboard';
+      }
+  };
+
   const typeConfig: Record<string, { title: string, subtitle: string }> = {
     client: { title: 'Cadastrar Cliente', subtitle: 'Crie sua conta para agendar' },
     company: { title: 'Cadastrar Empresa', subtitle: 'Comece a gerenciar seu negócio' },
+    provider: { title: 'Cadastrar Profissional', subtitle: 'Área do Prestador de Serviços' },
     admin: { title: 'Cadastrar Admin', subtitle: 'Registro administrativo' }
   };
   const currentConfig = typeConfig[accountType] || typeConfig['client'];
@@ -56,12 +69,27 @@ export const Register: React.FC = () => {
         setError('As senhas não coincidem.');
         return;
     }
+    
+    const passwordCheck = checkPasswordRole(password, accountType);
+    if (!passwordCheck.valid) {
+        setError(passwordCheck.message);
+        return;
+    }
+
     setError('');
     setEmailExists(false);
     
     try {
-      await register(name, email, password, role);
-      navigate('/dashboard');
+      // register agora retorna o User completo ou null
+      const user = await register(name, email, password, role);
+      
+      if (user) {
+          setIsSuccess(true);
+          // Redireciona para área correta
+          setTimeout(() => {
+            navigate(getRedirectPath(role));
+          }, 1500);
+      }
       
     } catch (err: any) {
       console.error(err);
@@ -86,11 +114,25 @@ export const Register: React.FC = () => {
     }
   };
 
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full text-center py-10 animate-in fade-in zoom-in duration-300">
+           <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+             <CheckCircle size={40} />
+           </div>
+           <h2 className="text-2xl font-bold text-slate-800 mb-2">Conta Criada!</h2>
+           <p className="text-slate-500 mb-6">Redirecionando para área {role.replace('_', ' ')}...</p>
+           <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto"></div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         
-        {/* Top Link: Voltar */}
         <div className="mb-6">
           <Link to={`/login?type=${accountType}`} className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-2">
             <ArrowLeft size={16} /> Voltar para login
@@ -184,7 +226,7 @@ export const Register: React.FC = () => {
 
               {!emailExists && (
                 <Button type="submit" className="w-full justify-center" disabled={isLoading}>
-                    {isLoading ? 'Criando Conta...' : 'Criar Conta'}
+                    {isLoading ? 'Registrando...' : 'Criar Conta'}
                 </Button>
               )}
               

@@ -1,4 +1,10 @@
-export type Role = 'MASTER_ADMIN' | 'EMPRESA_ADMIN' | 'CLIENTE';
+export type Role = 'MASTER_ADMIN' | 'EMPRESA_ADMIN' | 'CLIENTE' | 'PROFESSIONAL';
+
+// Mapeamento para garantir consistência entre o Prompt do usuário e o Código Interno
+// Prompt: ADMIN -> Código: MASTER_ADMIN
+// Prompt: EMPRESA -> Código: EMPRESA_ADMIN
+// Prompt: PROFISSIONAL -> Código: PROFESSIONAL
+// Prompt: CLIENTE -> Código: CLIENTE
 
 export interface NotificationSettings {
   provider: 'MOCK' | 'WHATSAPP_CLOUD' | 'Z_API' | 'ULTRAMSG';

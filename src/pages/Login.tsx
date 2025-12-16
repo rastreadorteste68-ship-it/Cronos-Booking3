@@ -4,10 +4,11 @@ import { Button, Input, Card, Modal } from '../components/UI';
 import { Command, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthService } from '../lib/authService';
+import { Role } from '../types';
 
 export const Login: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const accountType = searchParams.get('type') || 'client'; // Default to client if missing
+  const accountType = searchParams.get('type') || 'client';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,7 +16,6 @@ export const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
-  // Reset Password State
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetStatus, setResetStatus] = useState('');
@@ -23,16 +23,15 @@ export const Login: React.FC = () => {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Mapping types to UI text
   const typeConfig: Record<string, { title: string, subtitle: string, color: string }> = {
     client: { title: 'Login Cliente', subtitle: 'Acesse seus agendamentos', color: 'text-blue-600' },
     company: { title: 'Login Empresa', subtitle: 'Gerencie seu negócio', color: 'text-indigo-600' },
+    provider: { title: 'Login Profissional', subtitle: 'Área do Prestador', color: 'text-emerald-600' },
     admin: { title: 'Login Administrador', subtitle: 'Gestão do sistema', color: 'text-slate-800' }
   };
 
   const currentConfig = typeConfig[accountType] || typeConfig['client'];
 
-  // Load Remembered Email
   useEffect(() => {
     const savedEmail = localStorage.getItem('cronos_remember_email');
     if (savedEmail) {
@@ -41,25 +40,43 @@ export const Login: React.FC = () => {
     }
   }, []);
 
+  const getRedirectPath = (role: Role) => {
+      switch (role) {
+          case 'MASTER_ADMIN': return '/admin';
+          case 'EMPRESA_ADMIN': return '/empresa';
+          case 'PROFESSIONAL': return '/profissional';
+          case 'CLIENTE': return '/cliente';
+          default: return '/dashboard';
+      }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
         setError('Preencha todos os campos.');
         return;
     }
+
     setError('');
     
     try {
-      await login(email, password);
+      // Login retorna o User Object completo agora (com Role correta)
+      const user = await login(email, password);
       
-      // Handle Remember Me
-      if (rememberMe) {
-        localStorage.setItem('cronos_remember_email', email);
+      if (user) {
+        if (rememberMe) {
+            localStorage.setItem('cronos_remember_email', email);
+        } else {
+            localStorage.removeItem('cronos_remember_email');
+        }
+
+        // REDIRECIONAMENTO ESPECÍFICO POR ROLE
+        const path = getRedirectPath(user.role);
+        navigate(path);
       } else {
-        localStorage.removeItem('cronos_remember_email');
+        setError('Erro: Dados de perfil não encontrados. Contate o suporte.');
       }
 
-      navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
@@ -91,7 +108,6 @@ export const Login: React.FC = () => {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         
-        {/* Top Link: Voltar */}
         <div className="mb-6">
           <Link to="/" className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-2">
             <ArrowLeft size={16} /> Voltar para seleção
@@ -161,7 +177,7 @@ export const Login: React.FC = () => {
                 {error && <p className="text-sm text-red-500 bg-red-50 p-2 rounded border border-red-100">{error}</p>}
 
                 <Button type="submit" className="w-full justify-center" disabled={isLoading}>
-                    {isLoading ? 'Carregando...' : 'Entrar'}
+                    {isLoading ? 'Verificando...' : 'Entrar'}
                 </Button>
             </form>
 
@@ -178,7 +194,6 @@ export const Login: React.FC = () => {
         </Card>
       </div>
 
-      {/* Forgot Password Modal */}
       <Modal 
         isOpen={isResetModalOpen} 
         onClose={() => setIsResetModalOpen(false)} 

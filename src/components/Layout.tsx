@@ -12,12 +12,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navItems = [
-    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
+    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN', 'PROFESSIONAL'] },
     { label: 'Empresas', path: '/empresas', icon: Building2, roles: ['MASTER_ADMIN'] },
-    { label: 'Agenda', path: '/agenda', icon: Calendar, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN', 'CLIENTE'] },
-    { label: 'Clientes', path: '/clientes', icon: Users, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
+    { label: 'Agenda', path: '/agenda', icon: Calendar, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN', 'CLIENTE', 'PROFESSIONAL'] },
+    { label: 'Clientes', path: '/clientes', icon: Users, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN', 'PROFESSIONAL'] },
     { label: 'Profissionais', path: '/profissionais', icon: Briefcase, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
-    { label: 'Serviços', path: '/servicos', icon: Sliders, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
+    { label: 'Serviços', path: '/servicos', icon: Sliders, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN', 'PROFESSIONAL'] },
     { label: 'Eventos', path: '/eventos', icon: Mic2, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
     { label: 'Financeiro', path: '/financeiro', icon: DollarSign, roles: ['MASTER_ADMIN', 'EMPRESA_ADMIN'] },
     { label: 'Configurações', path: '/configuracoes', icon: Settings, roles: ['EMPRESA_ADMIN'] },

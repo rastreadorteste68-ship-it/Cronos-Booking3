@@ -1,6 +1,7 @@
+// src/lib/firebaseClient.ts
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getAnalytics, isSupported } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCTROUrI_zfmYuYVfFEmvx4hz4HaFgghYE",
@@ -15,6 +16,9 @@ const firebaseConfig = {
 export const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 
-if (typeof window !== "undefined") {
-  isSupported().then((yes) => yes && getAnalytics(firebaseApp));
-}
+// ADICIONE/EXPORTE o Firestore
+export const db = getFirestore(firebaseApp);
+
+
+
+
